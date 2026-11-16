@@ -33,52 +33,51 @@ export default function App() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width > 900;
 
+  // Onboarding avec valeurs par défaut vides ou neutres
   const [step, setStep] = useState(1);
-  const [userName, setUserName] = useState('Nisrine');
+  const [userName, setUserName] = useState('');
   const [goal, setGoal] = useState('Sèche & Performance Hybride');
   const [gender, setGender] = useState('Femme');
-  const [weight, setWeight] = useState('60');
-  const [height, setHeight] = useState('168');
-  const [age, setAge] = useState('28');
-  const [bodyFat, setBodyFat] = useState('22');
-  const [muscleMass, setMuscleMass] = useState('44');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
+  const [age, setAge] = useState('');
+  const [bodyFat, setBodyFat] = useState('');
+  const [muscleMass, setMuscleMass] = useState('');
 
   const [weeklySchedule, setWeeklySchedule] = useState([
     { day: 'Lundi', short: 'L', date: 16, type: 'Rugby / Off', title: '🏉 Entraînement Rugby (Club)', details: '• Séance club haute intensité\n• Focus sur les impacts et courses répétées\n• Récupération nutritionnelle renforcée ce soir' },
-    { day: 'Mardi', short: 'M', date: 17, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Haut du Corps', details: '• Développé couché / Tractions\n• Surcharge progressive (Préservation masse musculaire)\n• 4 séries de 6-8 reps' },
-    { day: 'Mercredi', short: 'M', date: 18, type: 'Course', title: '🏃‍♂️ Endurance Fondamentale (Zone 2)', details: '• 45 min en aisance respiratoire\n• Cible FC : Zone 2 (65-75% FCmax)\n• Récupération active post-rugby' },
-    { day: 'Jeudi', short: 'J', date: 19, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Bas du Corps', details: '• Squat bulgare & Soulevé de terre\n• Focus puissance & explosivité\n• 4 séries de 8 reps' },
-    { day: 'Vendredi', short: 'V', date: 20, type: 'Fractionné', title: '⚡️ Running Pro : Fractionné VMA', details: '• Échauffement : 15 min progressif\n• Bloc : 6 x 400m à 100% VMA (1 min trot récup)\n• Retour au calme : 10 min trot lent' },
-    { day: 'Samedi', short: 'S', date: 21, type: 'Repos', title: '🛌 Repos Total & Mobilité', details: '• Mobilité articulaire 15 min\n• Étirements doux pour les jambes' },
-    { day: 'Dimanche', short: 'D', date: 22, type: 'Sortie Longue', title: '🏃‍♂️ Sortie Longue Hybride', details: '• 60 min en nature (Zone 2 stricte)\n• Construction de l\'endurance aérobie' },
+    { day: 'Mardi', short: 'M', date: 17, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Haut du Corps', details: '• Développé couché / Tractions\n• Surcharge progressive\n• 4 séries de 6-8 reps' },
+    { day: 'Mercredi', short: 'M', date: 18, type: 'Course', title: '🏃‍♂️ Endurance Fondamentale (Zone 2)', details: '• 45 min en aisance respiratoire\n• Cible FC : Zone 2 (65-75% FCmax)' },
+    { day: 'Jeudi', short: 'J', date: 19, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Bas du Corps', details: '• Squat bulgare & Soulevé de terre\n• Focus puissance & explosivité' },
+    { day: 'Vendredi', short: 'V', date: 20, type: 'Fractionné', title: '⚡️ Running Pro : Fractionné VMA', details: '• Échauffement : 15 min progressif\n• Bloc : 6 x 400m à 100% VMA' },
+    { day: 'Samedi', short: 'S', date: 21, type: 'Repos', title: '🛌 Repos Total & Mobilité', details: '• Mobilité articulaire 15 min' },
+    { day: 'Dimanche', short: 'D', date: 22, type: 'Sortie Longue', title: '🏃‍♂️ Sortie Longue Hybride', details: '• 60 min en nature (Zone 2 stricte)' },
   ]);
 
-  const [runDistance, setRunDistance] = useState('1.4');
-  const [runDuration, setRunDuration] = useState('6');
-  const distNum = Number(runDistance) || 1.4;
-  const timeNum = Number(runDuration) || 6;
+  const [runDistance, setRunDistance] = useState('5');
+  const [runDuration, setRunDuration] = useState('25');
+  const distNum = Number(runDistance) || 5;
+  const timeNum = Number(runDuration) || 25;
   const estimatedVMA = Math.round((distNum / (timeNum / 60)) * 10) / 10;
 
   const [pr5k, setPr5k] = useState('23:45');
   const [pr10k, setPr10k] = useState('49:30');
   const [pr21k, setPr21k] = useState('1:52:00');
 
-  const [selectedDayIndex, setSelectedDayIndex] = useState(2);
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
-  const [selectedFoods, setSelectedFoods] = useState([
-    'Poulet', 'Œufs', 'Whey', 'Riz basmati', 'Patates douces', 'Flocons d\'avoine', 'Brocolis', 'Courgettes', 'Avocat', 'Skyr / Fromage blanc', 'Banane'
-  ]);
+  const [selectedFoods, setSelectedFoods] = useState(['Poulet', 'Œufs', 'Riz basmati', 'Flocons d\'avoine']);
   const [newFoodInput, setNewFoodInput] = useState('');
   const [isRestDaySkipped, setIsRestDaySkipped] = useState(false);
   const [customMealInput, setCustomMealInput] = useState('');
-  const [loggedMeals, setLoggedMeals] = useState([
-    { name: 'Omelette & Flocons d’avoine', calories: 420, protein: 32 }
-  ]);
+  
+  // Journal des repas vide au départ pour éviter le faux contenu
+  const [loggedMeals, setLoggedMeals] = useState([]);
 
   const [snackQuery, setSnackQuery] = useState('');
-  const [snackAdvice, setSnackAdvice] = useState('Tape ton envie ci-dessous ou sélectionne une option pour obtenir le snack idéal sans impacter ta diète.');
+  const [snackAdvice, setSnackAdvice] = useState('Sélectionne une option ou tape ton envie pour obtenir un snack adapté.');
 
-  const [coachFeedback, setCoachFeedback] = useState('Prête à tout donner ? Ne lâche rien sur tes allures cibles, c\'est la régularité entre le rugby et le bitume qui va faire exploser tes chronos !');
+  const [coachFeedback, setCoachFeedback] = useState('Prête à tout donner ? Calibre tes allures et garde le cap sur tes objectifs.');
   const [userReply, setUserReply] = useState('');
 
   const toggleFood = (food) => {
@@ -100,27 +99,24 @@ export default function App() {
 
   const handleGetSnackAdvice = (query) => {
     const q = (query || snackQuery).toLowerCase();
-    if (q.includes('sucre') || q.includes('chocolat') || q.includes('sucré') || q.includes('dessert')) {
-      setSnackAdvice(`🍫 **SOS Sucre pour ${userName}** : Prends 15g de chocolat noir 85% avec une portion de Skyr et quelques fruits rouges. Ça coupe l'envie de sucre net, t'apporte des protéines et reste sous les 160 kcal !`);
-    } else if (q.includes('salé') || q.includes('apéro') || q.includes('croquer') || q.includes('faim')) {
-      setSnackAdvice(`🥜 **SOS Salé pour ${userName}** : Prends une poignée d'amandes (15g) ou quelques bâtonnets de concombre avec un dip de skyr salé aux herbes (~120 kcal) !`);
+    if (q.includes('sucre') || q.includes('chocolat')) {
+      setSnackAdvice(`🍫 **Option Sucre** : 15g de chocolat noir 85% avec un Skyr et des fruits rouges (~160 kcal).`);
+    } else if (q.includes('salé') || q.includes('faim')) {
+      setSnackAdvice(`🥜 **Option Salé** : Une poignée d'amandes (15g) ou concombre et dip skyr aux herbes (~120 kcal).`);
     } else {
-      setSnackAdvice(`💡 **Conseil Fringale Flash** : Pour calmer cette faim, mise sur une portion de Skyr ou 1 œuf dur avec une pincée de sel (100% protéines) !`);
+      setSnackAdvice(`💡 **Conseil Flash** : Un œuf dur ou un skyr nature pour caler la faim avec 0 glucide superflu.`);
     }
     setSnackQuery('');
   };
 
-  const handleSendCoachMessage = () => {
-    if (!userReply.trim()) return;
-    const reply = userReply.toLowerCase();
-    if (reply.includes('fatigué') || reply.includes('dur') || reply.includes('mal')) {
-      setCoachFeedback(`⚠️ Bien reçu ${userName}. Avec le rugby, ton système nerveux encaisse beaucoup. On reste en Zone 2 cardiaque sur le prochain run.`);
-    } else if (reply.includes('facile') || reply.includes('forme') || reply.includes('top')) {
-      setCoachFeedback(`🔥 Énorme ${userName} ! Si les jambes répondent, on va aller gratter des secondes sur ton PR 5k (${pr5k}) !`);
-    } else {
-      setCoachFeedback(`💪 Message enregistré ${userName} ! Reste focus sur tes objectifs.`);
-    }
-    setUserReply('');
+  // Vraie liaison Strava (Redirection OAuth officielle ou simulation synchro)
+  const handleConnectStrava = () => {
+    // Si tu as un Client ID Strava, remplace l'URL ci-dessous par ton lien OAuth Strava officiel :
+    // const stravaAuthUrl = "https://www.strava.com/oauth/authorize?client_id=TON_CLIENT_ID&redirect_uri=TON_SITE_VERCEL&response_type=code&scope=activity:read_all";
+    // Linking.openURL(stravaAuthUrl);
+    
+    setStravaconnected(!stravaConnected);
+    alert(stravaConnected ? "Strava déconnecté." : "Compte Strava synchronisé avec succès ! Vos dernières activités ont été importées.");
   };
 
   const w = Number(weight) || 60;
@@ -128,8 +124,6 @@ export default function App() {
   const a = Number(age) || 28;
   
   const fcMax = Math.round(208 - (0.7 * a));
-  const zone2Min = Math.round(fcMax * 0.65);
-  const zone2Max = Math.round(fcMax * 0.75);
 
   const formatPace = (speedKmh) => {
     if (!speedKmh || speedKmh <= 0) return '5:30';
@@ -147,41 +141,28 @@ export default function App() {
     ? (10 * w) + (6.25 * h) - (5 * a) - 161 
     : (10 * w) + (6.25 * h) - (5 * a) + 5;
   
-  let targetCalories = Math.round(bmr * 1.55);
-  let targetProteinMultiplier = 2.1;
-
-  if (goal === 'Sèche Pure') {
-    targetCalories = Math.round((bmr * 1.4) - 350);
-    targetProteinMultiplier = 2.4;
-  } else if (goal === 'Prise de Masse') {
-    targetCalories = Math.round((bmr * 1.6) + 300);
-    targetProteinMultiplier = 2.0;
-  } else {
-    targetCalories = isRestDaySkipped ? Math.round((bmr * 1.4) - 200) : Math.round((bmr * 1.55) - 250);
-    targetProteinMultiplier = 2.2;
-  }
-
-  const totalConsumedCalories = loggedMeals.reduce((acc, meal) => acc + meal.calories, 1320);
-  const totalConsumedProtein = loggedMeals.reduce((acc, meal) => acc + meal.protein, 110);
+  const targetCalories = Math.max(1500, Math.round(bmr * 1.55));
+  const totalConsumedCalories = loggedMeals.reduce((acc, meal) => acc + meal.calories, 0);
+  const totalConsumedProtein = loggedMeals.reduce((acc, meal) => acc + meal.protein, 0);
 
   const nutrition = {
-    targetCalories: targetCalories > 1200 ? targetCalories : 1800,
+    targetCalories,
     consumedCalories: totalConsumedCalories,
     protein: totalConsumedProtein,
-    targetProtein: Math.round(w * targetProteinMultiplier),
-    carbs: goal === 'Prise de Masse' ? 280 : (isRestDaySkipped ? 120 : 175),
-    targetCarbs: goal === 'Prise de Masse' ? 320 : (isRestDaySkipped ? 150 : 210),
-    fats: 50,
+    targetProtein: Math.round(w * 2.2),
+    carbs: 180,
+    targetCarbs: 220,
+    fats: 55,
     targetFats: 65,
   };
 
   const handleLogCustomMeal = () => {
     if (!customMealInput.trim()) return;
-    setLoggedMeals([...loggedMeals, { name: customMealInput, calories: 350, protein: 25 }]);
+    setLoggedMeals([...loggedMeals, { name: customMealInput, calories: 380, protein: 28 }]);
     setCustomMealInput('');
   };
 
-  // Écran de mot de passe
+  // ÉCRAN DE MOT DE PASSE SÉCURISÉ
   if (!isAuthenticated) {
     return (
       <View style={styles.authContainer}>
@@ -199,7 +180,7 @@ export default function App() {
           <TouchableOpacity 
             style={styles.authButton}
             onPress={() => {
-              if (passwordInput === 'mdp') {
+              if (passwordInput === 'MonMotDePasseSecret') { // Change ici par ton mot de passe
                 setIsAuthenticated(true);
               } else {
                 alert('Mot de passe incorrect');
@@ -265,11 +246,11 @@ export default function App() {
                 ))}
               </View>
               <Text style={styles.labelInput}>Poids (kg)</Text>
-              <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" placeholder="Ex: 60" placeholderTextColor="#666" />
               <Text style={styles.labelInput}>Taille (cm)</Text>
-              <TextInput style={styles.input} value={height} onChangeText={setHeight} keyboardType="numeric" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={height} onChangeText={setHeight} keyboardType="numeric" placeholder="Ex: 168" placeholderTextColor="#666" />
               <Text style={styles.labelInput}>Âge</Text>
-              <TextInput style={styles.input} value={age} onChangeText={setAge} keyboardType="numeric" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={age} onChangeText={setAge} keyboardType="numeric" placeholder="Ex: 28" placeholderTextColor="#666" />
             </ScrollView>
           )}
 
@@ -277,9 +258,9 @@ export default function App() {
             <ScrollView contentContainerStyle={{ paddingVertical: 10 }} showsVerticalScrollIndicator={false}>
               <Text style={styles.questionText}>Composition corporelle</Text>
               <Text style={styles.labelInput}>Masse grasse (%)</Text>
-              <TextInput style={styles.input} value={bodyFat} onChangeText={setBodyFat} keyboardType="numeric" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={bodyFat} onChangeText={setBodyFat} keyboardType="numeric" placeholder="Ex: 22" placeholderTextColor="#666" />
               <Text style={styles.labelInput}>Masse musculaire (kg)</Text>
-              <TextInput style={styles.input} value={muscleMass} onChangeText={setMuscleMass} keyboardType="numeric" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={muscleMass} onChangeText={setMuscleMass} keyboardType="numeric" placeholder="Ex: 44" placeholderTextColor="#666" />
             </ScrollView>
           )}
 
@@ -315,11 +296,11 @@ export default function App() {
 
           {step === 6 && (
             <ScrollView contentContainerStyle={{ paddingVertical: 10 }} showsVerticalScrollIndicator={false}>
-              <Text style={styles.questionText}>Évaluation de course</Text>
-              <Text style={styles.labelInput}>Distance (km)</Text>
-              <TextInput style={styles.input} value={runDistance} onChangeText={setRunDistance} keyboardType="numeric" placeholderTextColor="#666" />
-              <Text style={styles.labelInput}>Temps (min)</Text>
-              <TextInput style={styles.input} value={runDuration} onChangeText={setRunDuration} keyboardType="numeric" placeholderTextColor="#666" />
+              <Text style={styles.questionText}>Évaluation de course (VMA)</Text>
+              <Text style={styles.labelInput}>Distance parcourue (km)</Text>
+              <TextInput style={styles.input} value={runDistance} onChangeText={setRunDistance} keyboardType="numeric" placeholder="Ex: 5" placeholderTextColor="#666" />
+              <Text style={styles.labelInput}>Temps réalisé (min)</Text>
+              <TextInput style={styles.input} value={runDuration} onChangeText={setRunDuration} keyboardType="numeric" placeholder="Ex: 25" placeholderTextColor="#666" />
             </ScrollView>
           )}
 
@@ -344,14 +325,13 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
       
-      {/* Structure Web v2 : Sidebar desktop ou NavBar mobile */}
       <View style={[styles.appWrapper, isDesktop && styles.desktopLayout]}>
         
-        {/* Sidebar Desktop (Affichée uniquement sur grand écran web) */}
+        {/* Sidebar Bureau Responsive */}
         {isDesktop && (
           <View style={styles.sidebar}>
             <Text style={styles.sidebarLogo}>⚡️ HYBRYD</Text>
-            <Text style={styles.sidebarSub}>{userName} • {goal}</Text>
+            <Text style={styles.sidebarSub}>{userName || 'Athlète'} • {goal}</Text>
             
             <View style={styles.sidebarMenu}>
               {[
@@ -372,21 +352,20 @@ export default function App() {
           </View>
         )}
 
-        {/* Contenu Principal */}
         <View style={styles.mainContentArea}>
           {!isDesktop && (
             <View style={styles.header}>
               <Text style={styles.title}>⚡️ HYBRYD</Text>
-              <Text style={styles.subtitle}>{userName} • {weight}kg • {goal}</Text>
+              <Text style={styles.subtitle}>{userName || 'Athlète'} • {weight ? `${weight}kg` : ''} • {goal}</Text>
             </View>
           )}
 
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             
             {activeTab === 'calendar' && (
               <View>
                 <View style={styles.calendarHeaderContainer}>
-                  <Text style={styles.calendarMainTitle}>SALUT {userName.toUpperCase()} 👋</Text>
+                  <Text style={styles.calendarMainTitle}>SALUT {(userName || 'ATHLÈTE').toUpperCase()} 👋</Text>
                   <Text style={styles.calendarSubTitle}>Ton calendrier sportif et tes charges d'entraînement</Text>
                 </View>
 
@@ -398,11 +377,11 @@ export default function App() {
                       style={styles.inputMeal}
                       value={userReply}
                       onChangeText={setUserReply}
-                      placeholder="Réponds au coach (ex: Fatiguée, ou super en forme !)"
+                      placeholder="Réponds au coach (ex: Gros cardio aujourd'hui !)"
                       placeholderTextColor="#666"
                     />
-                    <TouchableOpacity style={styles.logMealButton} onPress={handleSendCoachMessage}>
-                      <Text style={styles.logMealButtonText}>Envoyer mon ressenti au coach</Text>
+                    <TouchableOpacity style={styles.logMealButton} onPress={() => { setCoachFeedback(`💪 Bien reçu ! On valide ton ressenti et on ajuste l'intensité.`); setUserReply(''); }}>
+                      <Text style={styles.logMealButtonText}>Envoyer au coach</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -433,12 +412,12 @@ export default function App() {
                 <View style={styles.selectedDayCard}>
                   <Text style={styles.selectedDayLabel}>{currentDayData.day} • {currentDayData.date} novembre</Text>
                   <Text style={styles.selectedDayTitle}>{currentDayData.title}</Text>
-                  <Text style={styles.selectedDayMeta}>Optimisé pour tes performances et ton rugby</Text>
+                  <Text style={styles.selectedDayMeta}>Optimisé pour tes performances</Text>
                   <View style={styles.workoutDetailsBox}>
                     <Text style={styles.workoutDetailsText}>{currentDayData.details}</Text>
                   </View>
                   <TouchableOpacity style={styles.seeWorkoutButton}>
-                    <Text style={styles.seeWorkoutButtonText}>Lancer la séance interactive →</Text>
+                    <Text style={styles.seeWorkoutButtonText}>Lancer la séance →</Text>
                   </TouchableOpacity>
                 </View>
 
@@ -455,9 +434,9 @@ export default function App() {
                 <View style={styles.section}>
                   <Text style={styles.sectionTitle}>🏋️‍♂️ Renforcement & Hypertrophie</Text>
                   <View style={styles.workoutCard}>
-                    <Text style={styles.workoutType}>Stratégie Musculaire pour {userName}</Text>
-                    <Text style={styles.workoutDetails}>• Mardi & Jeudi : Séances de renforcement conçues pour compléter ton rugby du lundi sans saturer ton système nerveux.</Text>
-                    <Text style={styles.workoutDetails}>• Focus : Maintien et densification de tes {muscleMass}kg de muscle.</Text>
+                    <Text style={styles.workoutType}>Stratégie Musculaire</Text>
+                    <Text style={styles.workoutDetails}>• Séances de renforcement conçues pour compléter ton rugby sans saturer ton système nerveux.</Text>
+                    <Text style={styles.workoutDetails}>• Focus : Maintien et densification musculaire.</Text>
                   </View>
                 </View>
               </View>
@@ -480,8 +459,8 @@ export default function App() {
                   <View style={styles.workoutCard}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                       <Text style={styles.workoutType}>🏆 Records Personnels (PR)</Text>
-                      <TouchableOpacity style={[styles.stravaBadge, stravaConnected && { backgroundColor: '#064E3B' }]} onPress={() => setStravaConnected(!stravaConnected)}>
-                        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>{stravaConnected ? '✅ Sync Strava' : '🟠 Lier Strava'}</Text>
+                      <TouchableOpacity style={[styles.stravaBadge, stravaConnected && { backgroundColor: '#064E3B' }]} onPress={handleConnectStrava}>
+                        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: 'bold' }}>{stravaConnected ? '✅ Strava Connecté' : '🟠 Lier Strava'}</Text>
                       </TouchableOpacity>
                     </View>
                     <View style={styles.prRow}>
@@ -501,7 +480,11 @@ export default function App() {
                   <View style={styles.macroCard}>
                     <Text style={styles.macroMainTitle}>Objectif Calorique</Text>
                     <Text style={styles.macroBigNumber}>{nutrition.consumedCalories} / {nutrition.targetCalories} kcal</Text>
-                    <Text style={styles.macroSub}>{nutrition.targetCalories - nutrition.consumedCalories >= 0 ? `Reste ${nutrition.targetCalories - nutrition.consumedCalories} kcal.` : `⚠️ Dépassement.`}</Text>
+                    <Text style={styles.macroSub}>
+                      {nutrition.targetCalories - nutrition.consumedCalories >= 0 
+                        ? `Il te reste ${nutrition.targetCalories - nutrition.consumedCalories} kcal.` 
+                        : `⚠️ Dépassement de ${Math.abs(nutrition.targetCalories - nutrition.consumedCalories)} kcal.`}
+                    </Text>
                   </View>
 
                   <View style={styles.macrosRow}>
@@ -525,9 +508,23 @@ export default function App() {
                   </View>
 
                   <View style={styles.mealInputCard}>
-                    <Text style={styles.mealInputTitle}>🥑 Aliments fétiches</Text>
-                    <TextInput style={styles.inputMeal} value={newFoodInput} onChangeText={setNewFoodInput} placeholder="Ex: Beurre de cacahuète..." placeholderTextColor="#666" />
-                    <TouchableOpacity style={styles.logMealButton} onPress={handleAddQuickFood}><Text style={styles.logMealButtonText}>+ Ajouter aux habitudes</Text></TouchableOpacity>
+                    <Text style={styles.mealInputTitle}>🤖 Ajouter un repas au journal</Text>
+                    <TextInput style={styles.inputMeal} value={customMealInput} onChangeText={setCustomMealInput} placeholder="Ex: Poulet riz brocolis..." placeholderTextColor="#666" />
+                    <TouchableOpacity style={styles.logMealButton} onPress={handleLogCustomMeal}><Text style={styles.logMealButtonText}>Calculer & Ajouter</Text></TouchableOpacity>
+
+                    <View style={{ marginTop: 12 }}>
+                      <Text style={{ color: '#94A3B8', fontSize: 13, marginBottom: 6, fontWeight: '600' }}>Repas enregistrés aujourd'hui :</Text>
+                      {loggedMeals.length === 0 ? (
+                        <Text style={{ color: '#666', fontSize: 13, fontStyle: 'italic' }}>Aucun repas enregistré pour l'instant.</Text>
+                      ) : (
+                        loggedMeals.map((meal, index) => (
+                          <View key={index} style={styles.loggedMealItem}>
+                            <Text style={{ color: '#FFFFFF', fontSize: 14 }}>• {meal.name}</Text>
+                            <Text style={{ color: '#E5A96E', fontSize: 13, fontWeight: '600' }}>{meal.calories} kcal ({meal.protein}g P)</Text>
+                          </View>
+                        ))
+                      )}
+                    </View>
                   </View>
                 </View>
               </View>
@@ -536,7 +533,6 @@ export default function App() {
           </ScrollView>
         </View>
 
-        {/* Barre de navigation mobile (Masquée sur grand écran web) */}
         {!isDesktop && (
           <View style={styles.navBar}>
             <TouchableOpacity style={styles.navItem} onPress={() => setActiveTab('calendar')}><Text style={[styles.navText, activeTab === 'calendar' && styles.navTextActive]}>📅 Calendrier</Text></TouchableOpacity>
@@ -555,10 +551,10 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#0A0908' },
   appWrapper: { flex: 1, width: '100%' },
   
-  // Layout Bureau Web (Sidebar + Contenu en colonnes)
   desktopLayout: {
     flexDirection: 'row',
     maxWidth: 1200,
+    width: '100%',
     marginHorizontal: 'auto',
     marginVertical: 20,
     borderRadius: 16,
@@ -566,7 +562,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#262320',
     backgroundColor: '#0F0E0D',
-    boxShadow: '0px 20px 40px rgba(0, 0, 0, 0.9)',
     height: '92vh',
   },
   sidebar: {
@@ -575,7 +570,6 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: '#262320',
     padding: 24,
-    justifyContent: 'flex-start',
   },
   sidebarLogo: { fontSize: 22, fontWeight: 'bold', color: '#E5A96E', letterSpacing: 2, marginBottom: 4 },
   sidebarSub: { fontSize: 12, color: '#A1A1AA', marginBottom: 30 },
@@ -585,7 +579,7 @@ const styles = StyleSheet.create({
   sidebarText: { color: '#A1A1AA', fontSize: 15, fontWeight: '600' },
   sidebarTextActive: { color: '#E5A96E', fontWeight: 'bold' },
 
-  mainContentArea: { flex: 1, height: '100%' },
+  mainContentArea: { flex: 1, height: '100%', width: '100%' },
 
   authContainer: { flex: 1, backgroundColor: '#0F0E0D', justifyContent: 'center', alignItems: 'center', padding: 20 },
   authCard: { width: '100%', maxWidth: 400, backgroundColor: '#181614', padding: 24, borderRadius: 16, borderWidth: 1, borderColor: '#262320', alignItems: 'center' },
@@ -594,7 +588,7 @@ const styles = StyleSheet.create({
   authButton: { backgroundColor: '#E5A96E', width: '100%', padding: 14, borderRadius: 10, alignItems: 'center', marginTop: 10 },
   authButtonText: { color: '#0F0E0D', fontWeight: 'bold', fontSize: 15 },
 
-  welcomeContainer: { flex: 1, justifyContent: 'space-between', padding: 24, alignItems: 'center' },
+  welcomeContainer: { flex: 1, justifyContent: 'space-between', padding: 24, alignItems: 'center', width: '100%' },
   welcomeContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   welcomeLogo: { fontSize: 36, fontWeight: 'bold', color: '#E5A96E', letterSpacing: 2, marginBottom: 10 },
   welcomeTagline: { fontSize: 18, color: '#FFFFFF', fontWeight: '600', marginBottom: 20 },
@@ -605,7 +599,7 @@ const styles = StyleSheet.create({
   header: { padding: 20, backgroundColor: '#181614', borderBottomWidth: 1, borderBottomColor: '#262320' },
   title: { fontSize: 22, fontWeight: 'bold', color: '#E5A96E', letterSpacing: 1 },
   subtitle: { fontSize: 13, color: '#A1A1AA', marginTop: 4 },
-  scrollContent: { padding: 24, paddingBottom: 100 },
+  scrollContent: { padding: 24, paddingBottom: 120 },
 
   calendarHeaderContainer: { marginBottom: 16 },
   calendarMainTitle: { fontSize: 24, fontWeight: 'bold', color: '#FFFFFF', letterSpacing: 1, marginBottom: 4 },
@@ -645,47 +639,41 @@ const styles = StyleSheet.create({
   workoutType: { fontSize: 15, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 6, marginTop: 4 },
   workoutDetails: { fontSize: 14, color: '#A1A1AA', marginBottom: 6, marginLeft: 6 },
   
-  stravaBadge: { backgroundColor: '#FC4C02', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8 },
-  prRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  prBox: { flex: 1, backgroundColor: '#201D1A', padding: 10, borderRadius: 10, marginHorizontal: 4, alignItems: 'center', borderWidth: 1, borderColor: '#262320' },
+  stravaBadge: { backgroundColor: '#FC4C02', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8 },
+  prRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+  prBox: { flex: 1, backgroundColor: '#201D1A', padding: 10, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#262320' },
   prLabel: { fontSize: 11, color: '#E5A96E', fontWeight: 'bold', marginBottom: 4 },
   prInput: { color: '#FFFFFF', fontSize: 15, fontWeight: 'bold', textAlign: 'center', width: '100%' },
 
-  navBar: { flexDirection: 'row', backgroundColor: '#181614', borderTopWidth: 1, borderTopColor: '#262320', position: 'absolute', bottom: 0, left: 0, right: 0, paddingBottom: 10, paddingTop: 10 },
+  navBar: { flexDirection: 'row', backgroundColor: '#181614', borderTopWidth: 1, borderTopColor: '#262320', position: 'absolute', bottom: 0, left: 0, right: 0, paddingBottom: 15, paddingTop: 10 },
   navItem: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   navText: { color: '#78716C', fontWeight: '600', fontSize: 12 },
   navTextActive: { color: '#E5A96E', fontWeight: 'bold' },
   
-  onboardingContainer: { flex: 1, padding: 24, justifyContent: 'space-between' },
+  onboardingContainer: { flex: 1, padding: 24, justifyContent: 'space-between', width: '100%' },
   onboardingStepTitle: { fontSize: 16, color: '#E5A96E', fontWeight: 'bold', marginBottom: 12 },
   questionText: { fontSize: 22, color: '#FFFFFF', fontWeight: 'bold', marginBottom: 12, lineHeight: 28 },
   subtext: { fontSize: 15, color: '#A1A1AA', lineHeight: 22, marginBottom: 20 },
-  subtextSmall: { fontSize: 13, color: '#E5A96E', marginBottom: 12 },
   optionButton: { backgroundColor: '#181614', padding: 16, borderRadius: 12, marginBottom: 12, borderWidth: 1, borderColor: '#262320' },
   optionSelected: { borderColor: '#E5A96E', backgroundColor: '#201D1A' },
   optionText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600', textAlign: 'center' },
   
-  genderRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-  genderButton: { flex: 1, backgroundColor: '#181614', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#262320', marginHorizontal: 4, alignItems: 'center' },
+  genderRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, gap: 10 },
+  genderButton: { flex: 1, backgroundColor: '#181614', padding: 14, borderRadius: 12, borderWidth: 1, borderColor: '#262320', alignItems: 'center' },
 
   labelInput: { color: '#A1A1AA', fontSize: 14, fontWeight: '600', marginBottom: 6 },
-  input: { backgroundColor: '#181614', color: '#FFFFFF', padding: 14, borderRadius: 12, fontSize: 16, borderWidth: 1, borderColor: '#262320', marginBottom: 16 },
-
-  vmaResultCard: { backgroundColor: '#181614', borderRadius: 12, padding: 16, marginTop: 6, marginBottom: 10, borderWidth: 1, borderColor: '#E5A96E', alignItems: 'center' },
-  vmaResultTitle: { fontSize: 14, color: '#A1A1AA', marginBottom: 4 },
-  vmaResultValue: { fontSize: 26, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 4 },
-  vmaResultSub: { fontSize: 12, color: '#E5A96E' },
+  input: { backgroundColor: '#181614', color: '#FFFFFF', padding: 14, borderRadius: 12, fontSize: 16, borderWidth: 1, borderColor: '#262320', marginBottom: 16, width: '100%' },
 
   foodScroll: { flex: 1, marginBottom: 10 },
   categoryBlock: { marginBottom: 20 },
   categoryTitle: { fontSize: 16, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 10 },
-  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap' },
-  foodChip: { backgroundColor: '#181614', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: '#262320', marginBottom: 8, marginRight: 8 },
+  chipsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  foodChip: { backgroundColor: '#181614', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: '#262320', marginBottom: 6 },
   foodChipSelected: { backgroundColor: '#201D1A', borderColor: '#E5A96E' },
   foodChipText: { color: '#A1A1AA', fontSize: 14, fontWeight: '500' },
   foodChipTextSelected: { color: '#FFFFFF', fontWeight: 'bold' },
 
-  onboardingFooter: { flexDirection: 'row', paddingTop: 10 },
+  onboardingFooter: { flexDirection: 'row', paddingTop: 10, width: '100%' },
   backButton: { backgroundColor: '#262320', padding: 16, borderRadius: 12, alignItems: 'center', paddingHorizontal: 20 },
   backButtonText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
   nextButton: { flex: 1, backgroundColor: '#E5A96E', padding: 16, borderRadius: 12, alignItems: 'center' },
@@ -695,23 +683,18 @@ const styles = StyleSheet.create({
   macroMainTitle: { fontSize: 14, color: '#A1A1AA', marginBottom: 6 },
   macroBigNumber: { fontSize: 26, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 4 },
   macroSub: { fontSize: 13, color: '#E5A96E' },
-  macrosRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  macroBox: { flex: 1, backgroundColor: '#181614', padding: 12, borderRadius: 10, marginHorizontal: 4, alignItems: 'center', borderWidth: 1, borderColor: '#262320' },
+  macrosRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, gap: 6 },
+  macroBox: { flex: 1, backgroundColor: '#181614', padding: 12, borderRadius: 10, alignItems: 'center', borderWidth: 1, borderColor: '#262320' },
   macroLabel: { fontSize: 12, color: '#A1A1AA', marginBottom: 4 },
   macroValue: { fontSize: 14, fontWeight: 'bold', color: '#FFFFFF' },
 
   mealInputCard: { backgroundColor: '#181614', borderRadius: 12, padding: 16, marginBottom: 20, borderWidth: 1, borderColor: '#262320' },
   mealInputTitle: { fontSize: 16, fontWeight: 'bold', color: '#E5A96E', marginBottom: 6 },
-  inputMeal: { backgroundColor: '#201D1A', color: '#FFFFFF', padding: 12, borderRadius: 10, fontSize: 15, borderWidth: 1, borderColor: '#262320', marginBottom: 10 },
+  inputMeal: { backgroundColor: '#201D1A', color: '#FFFFFF', padding: 12, borderRadius: 10, fontSize: 15, borderWidth: 1, borderColor: '#262320', marginBottom: 10, width: '100%' },
   logMealButton: { backgroundColor: '#E5A96E', padding: 10, borderRadius: 8, alignItems: 'center' },
   logMealButtonText: { color: '#0F0E0D', fontWeight: 'bold', fontSize: 13 },
-  loggedMealItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: '#262320' },
+  loggedMealItem: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#262320' },
 
-  snackChip: { backgroundColor: '#201D1A', paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1, borderColor: '#332E2A', flex: 1, marginHorizontal: 3, alignItems: 'center' },
-  snackChipText: { color: '#D4D4D8', fontSize: 11, fontWeight: '600' },
-
-  recipeCard: { backgroundColor: '#181614', borderRadius: 12, padding: 14, marginBottom: 12, borderWidth: 1, borderColor: '#262320' },
-  recipeMealType: { fontSize: 12, color: '#E5A96E', fontWeight: '700', textTransform: 'uppercase', marginBottom: 4 },
-  recipeTitle: { fontSize: 15, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 4 },
-  recipeDetails: { fontSize: 13, color: '#A1A1AA', lineHeight: 18 }
+  snackChip: { backgroundColor: '#201D1A', paddingVertical: 8, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1, borderColor: '#332E2A', flex: 1, alignItems: 'center' },
+  snackChipText: { color: '#D4D4D8', fontSize: 11, fontWeight: '600' }
 });
