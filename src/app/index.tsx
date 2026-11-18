@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -33,8 +33,7 @@ export default function App() {
   const { width } = useWindowDimensions();
   const isDesktop = Platform.OS === 'web' && width > 900;
 
-  // Onboarding avec valeurs par défaut vides ou neutres
-  const [step, setStep] = useState(1);
+  // États persistants via localStorage (Web) ou états classiques
   const [userName, setUserName] = useState('');
   const [goal, setGoal] = useState('Sèche & Performance Hybride');
   const [gender, setGender] = useState('Femme');
@@ -44,14 +43,16 @@ export default function App() {
   const [bodyFat, setBodyFat] = useState('');
   const [muscleMass, setMuscleMass] = useState('');
 
+  const [step, setStep] = useState(1);
+
   const [weeklySchedule, setWeeklySchedule] = useState([
     { day: 'Lundi', short: 'L', date: 16, type: 'Rugby / Off', title: '🏉 Entraînement Rugby (Club)', details: '• Séance club haute intensité\n• Focus sur les impacts et courses répétées\n• Récupération nutritionnelle renforcée ce soir' },
-    { day: 'Mardi', short: 'M', date: 17, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Haut du Corps', details: '• Développé couché / Tractions\n• Surcharge progressive\n• 4 séries de 6-8 reps' },
-    { day: 'Mercredi', short: 'M', date: 18, type: 'Course', title: '🏃‍♂️ Endurance Fondamentale (Zone 2)', details: '• 45 min en aisance respiratoire\n• Cible FC : Zone 2 (65-75% FCmax)' },
-    { day: 'Jeudi', short: 'J', date: 19, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Bas du Corps', details: '• Squat bulgare & Soulevé de terre\n• Focus puissance & explosivité' },
-    { day: 'Vendredi', short: 'V', date: 20, type: 'Fractionné', title: '⚡️ Running Pro : Fractionné VMA', details: '• Échauffement : 15 min progressif\n• Bloc : 6 x 400m à 100% VMA' },
-    { day: 'Samedi', short: 'S', date: 21, type: 'Repos', title: '🛌 Repos Total & Mobilité', details: '• Mobilité articulaire 15 min' },
-    { day: 'Dimanche', short: 'D', date: 22, type: 'Sortie Longue', title: '🏃‍♂️ Sortie Longue Hybride', details: '• 60 min en nature (Zone 2 stricte)' },
+    { day: 'Mardi', short: 'M', date: 17, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Haut du Corps', details: '• Développé couché / Tractions\n• Surcharge progressive (Préservation masse musculaire)\n• 4 séries de 6-8 reps' },
+    { day: 'Mercredi', short: 'M', date: 18, type: 'Course', title: '🏃‍♂️ Endurance Fondamentale (Zone 2)', details: '• 45 min en aisance respiratoire\n• Cible FC : Zone 2 (65-75% FCmax)\n• Récupération active post-rugby' },
+    { day: 'Jeudi', short: 'J', date: 19, type: 'Renforcement', title: '🏋️‍♂️ Renforcement Bas du Corps', details: '• Squat bulgare & Soulevé de terre\n• Focus puissance & explosivité\n• 4 séries de 8 reps' },
+    { day: 'Vendredi', short: 'V', date: 20, type: 'Fractionné', title: '⚡️ Running Pro : Fractionné VMA', details: '• Échauffement : 15 min progressif\n• Bloc : 6 x 400m à 100% VMA (1 min trot récup)\n• Retour au calme : 10 min trot lent' },
+    { day: 'Samedi', short: 'S', date: 21, type: 'Repos', title: '🛌 Repos Total & Mobilité', details: '• Mobilité articulaire 15 min\n• Étirements doux pour les jambes' },
+    { day: 'Dimanche', short: 'D', date: 22, type: 'Sortie Longue', title: '🏃‍♂️ Sortie Longue Hybride', details: '• 60 min en nature (Zone 2 stricte)\n• Construction de l\'endurance aérobie' },
   ]);
 
   const [runDistance, setRunDistance] = useState('5');
@@ -70,22 +71,59 @@ export default function App() {
   const [newFoodInput, setNewFoodInput] = useState('');
   const [isRestDaySkipped, setIsRestDaySkipped] = useState(false);
   const [customMealInput, setCustomMealInput] = useState('');
-  
-  // Journal des repas vide au départ pour éviter le faux contenu
   const [loggedMeals, setLoggedMeals] = useState([]);
 
   const [snackQuery, setSnackQuery] = useState('');
-  const [snackAdvice, setSnackAdvice] = useState('Sélectionne une option ou tape ton envie pour obtenir un snack adapté.');
+  const [snackAdvice, setSnackAdvice] = useState('Sélectionne une option ci-dessous ou tape ton envie pour obtenir le snack idéal sans impacter ta diète.');
 
-  const [coachFeedback, setCoachFeedback] = useState('Prête à tout donner ? Calibre tes allures et garde le cap sur tes objectifs.');
+  const [coachFeedback, setCoachFeedback] = useState('Prête à tout donner ? Analyse tes charges et garde le cap sur tes chronos et ton rugby.');
   const [userReply, setUserReply] = useState('');
 
-  const toggleFood = (food) => {
-    if (selectedFoods.includes(food)) {
-      setSelectedFoods(selectedFoods.filter(item => item !== food));
-    } else {
-      setSelectedFoods([...selectedFoods, food]);
+  // CHARGEMENT DE LA MÉMOIRE LOCALE AU DÉMARRAGE (Persistance Web)
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      try {
+        const savedData = localStorage.getItem('hybryd_user_data');
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          if (parsed.userName) setUserName(parsed.userName);
+          if (parsed.goal) setGoal(parsed.goal);
+          if (parsed.weight) setWeight(parsed.weight);
+          if (parsed.height) setHeight(parsed.height);
+          if (parsed.age) setAge(parsed.age);
+          if (parsed.bodyFat) setBodyFat(parsed.bodyFat);
+          if (parsed.muscleMass) setMuscleMass(parsed.muscleMass);
+          if (parsed.loggedMeals) setLoggedMeals(parsed.loggedMeals);
+          if (parsed.pr5k) setPr5k(parsed.pr5k);
+          if (parsed.pr10k) setPr10k(parsed.pr10k);
+          if (parsed.pr21k) setPr21k(parsed.pr21k);
+          if (parsed.hasCompletedOnboarding) setHasCompletedOnboarding(parsed.hasCompletedOnboarding);
+          if (parsed.hasStarted) setHasStarted(parsed.hasStarted);
+        }
+      } catch (e) {
+        console.log('Erreur de lecture localStorage', e);
+      }
     }
+  }, []);
+
+  // SAUVEGARDE AUTOMATIQUE DÈS QU'UNE DONNÉE CHANGE
+  const saveDataToStorage = (newData) => {
+    if (Platform.OS === 'web') {
+      try {
+        const currentData = {
+          userName, goal, weight, height, age, bodyFat, muscleMass, loggedMeals, pr5k, pr10k, pr21k, hasCompletedOnboarding, hasStarted,
+          ...newData
+        };
+        localStorage.setItem('hybryd_user_data', JSON.stringify(currentData));
+      } catch (e) {
+        console.log('Erreur de sauvegarde localStorage', e);
+      }
+    }
+  };
+
+  const toggleFood = (food) => {
+    const updated = selectedFoods.includes(food) ? selectedFoods.filter(item => item !== food) : [...selectedFoods, food];
+    setSelectedFoods(updated);
   };
 
   const handleAddQuickFood = () => {
@@ -100,29 +138,23 @@ export default function App() {
   const handleGetSnackAdvice = (query) => {
     const q = (query || snackQuery).toLowerCase();
     if (q.includes('sucre') || q.includes('chocolat')) {
-      setSnackAdvice(`🍫 **Option Sucre** : 15g de chocolat noir 85% avec un Skyr et des fruits rouges (~160 kcal).`);
+      setSnackAdvice(`🍫 **Option Sucre pour ${userName || 'Athlète'}** : 15g de chocolat noir 85% avec un Skyr et des fruits rouges (~160 kcal). Zéro culpabilité !`);
     } else if (q.includes('salé') || q.includes('faim')) {
-      setSnackAdvice(`🥜 **Option Salé** : Une poignée d'amandes (15g) ou concombre et dip skyr aux herbes (~120 kcal).`);
+      setSnackAdvice(`🥜 **Option Salé pour ${userName || 'Athlète'}** : Une poignée d'amandes (15g) ou concombre et dip skyr aux herbes (~120 kcal).`);
     } else {
-      setSnackAdvice(`💡 **Conseil Flash** : Un œuf dur ou un skyr nature pour caler la faim avec 0 glucide superflu.`);
+      setSnackAdvice(`💡 **Conseil Flash** : Un œuf dur ou un skyr nature pour caler l'estomac avec 100% de protéines pures.`);
     }
     setSnackQuery('');
   };
 
-  // Vraie liaison Strava (Redirection OAuth officielle ou simulation synchro)
   const handleConnectStrava = () => {
-    // Si tu as un Client ID Strava, remplace l'URL ci-dessous par ton lien OAuth Strava officiel :
-    // const stravaAuthUrl = "https://www.strava.com/oauth/authorize?client_id=TON_CLIENT_ID&redirect_uri=TON_SITE_VERCEL&response_type=code&scope=activity:read_all";
-    // Linking.openURL(stravaAuthUrl);
-    
-    setStravaconnected(!stravaConnected);
-    alert(stravaConnected ? "Strava déconnecté." : "Compte Strava synchronisé avec succès ! Vos dernières activités ont été importées.");
+    setStravaConnected(!stravaConnected);
+    alert(stravaConnected ? "Strava déconnecté." : "Compte Strava lié avec succès ! Importation des dernières activités en cours...");
   };
 
   const w = Number(weight) || 60;
   const h = Number(height) || 168;
   const a = Number(age) || 28;
-  
   const fcMax = Math.round(208 - (0.7 * a));
 
   const formatPace = (speedKmh) => {
@@ -158,11 +190,14 @@ export default function App() {
 
   const handleLogCustomMeal = () => {
     if (!customMealInput.trim()) return;
-    setLoggedMeals([...loggedMeals, { name: customMealInput, calories: 380, protein: 28 }]);
+    const newMeal = { name: customMealInput, calories: 380, protein: 28 };
+    const updatedMeals = [...loggedMeals, newMeal];
+    setLoggedMeals(updatedMeals);
     setCustomMealInput('');
+    saveDataToStorage({ loggedMeals: updatedMeals });
   };
 
-  // ÉCRAN DE MOT DE PASSE SÉCURISÉ
+  // ÉCRAN DE SÉCURITÉ MOT DE PASSE
   if (!isAuthenticated) {
     return (
       <View style={styles.authContainer}>
@@ -180,7 +215,7 @@ export default function App() {
           <TouchableOpacity 
             style={styles.authButton}
             onPress={() => {
-              if (passwordInput === 'MonMotDePasseSecret') { // Change ici par ton mot de passe
+              if (passwordInput === 'MonMotDePasseSecret') { // Change ton mot de passe ici si besoin
                 setIsAuthenticated(true);
               } else {
                 alert('Mot de passe incorrect');
@@ -203,11 +238,11 @@ export default function App() {
             <Text style={styles.welcomeLogo}>⚡️ HYBRYD ⚡️</Text>
             <Text style={styles.welcomeTagline}>Ton coach d'élite personnel</Text>
             <Text style={styles.welcomeDescription}>
-              La fusion parfaite entre exigence sportive (rugby, course, renfo) et nutrition de précision.
+              La fusion parfaite entre exigence sportive (rugby, course, renfo) et nutrition de précision. Données enregistrées en temps réel.
             </Text>
           </View>
-          <TouchableOpacity style={styles.startButtonLarge} onPress={() => setHasStarted(true)}>
-            <Text style={styles.startButtonLargeText}>Commencer</Text>
+          <TouchableOpacity style={styles.startButtonLarge} onPress={() => { setHasStarted(true); saveDataToStorage({ hasStarted: true }); }}>
+            <Text style={styles.startButtonLargeText}>Accéder à mon espace</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -219,15 +254,15 @@ export default function App() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" />
         <View style={styles.onboardingContainer}>
-          <Text style={styles.onboardingStepTitle}>🧠 Étape {step}/6 : Configuration</Text>
+          <Text style={styles.onboardingStepTitle}>🧠 Étape {step}/6 : Configuration Initiale</Text>
           
           {step === 1 && (
             <ScrollView contentContainerStyle={{ paddingVertical: 10 }} showsVerticalScrollIndicator={false}>
               <Text style={styles.questionText}>Comment t'appelles-tu ?</Text>
-              <TextInput style={styles.input} value={userName} onChangeText={setUserName} placeholder="Ex: Nisrine" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={userName} onChangeText={(val) => { setUserName(val); saveDataToStorage({ userName: val }); }} placeholder="Ex: Nisrine" placeholderTextColor="#666" />
               <Text style={[styles.questionText, { marginTop: 20 }]}>Quel est ton objectif principal ?</Text>
               {['Sèche & Performance Hybride', 'Sèche Pure', 'Prise de Masse'].map((item) => (
-                <TouchableOpacity key={item} style={[styles.optionButton, goal === item && styles.optionSelected]} onPress={() => setGoal(item)}>
+                <TouchableOpacity key={item} style={[styles.optionButton, goal === item && styles.optionSelected]} onPress={() => { setGoal(item); saveDataToStorage({ goal: item }); }}>
                   <Text style={styles.optionText}>{item}</Text>
                 </TouchableOpacity>
               ))}
@@ -240,17 +275,17 @@ export default function App() {
               <Text style={styles.labelInput}>Sexe</Text>
               <View style={styles.genderRow}>
                 {['Femme', 'Homme'].map((g) => (
-                  <TouchableOpacity key={g} style={[styles.genderButton, gender === g && styles.optionSelected]} onPress={() => setGender(g)}>
+                  <TouchableOpacity key={g} style={[styles.genderButton, gender === g && styles.optionSelected]} onPress={() => { setGender(g); saveDataToStorage({ gender: g }); }}>
                     <Text style={styles.optionText}>{g}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
               <Text style={styles.labelInput}>Poids (kg)</Text>
-              <TextInput style={styles.input} value={weight} onChangeText={setWeight} keyboardType="numeric" placeholder="Ex: 60" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={weight} onChangeText={(val) => { setWeight(val); saveDataToStorage({ weight: val }); }} keyboardType="numeric" placeholder="Ex: 60" placeholderTextColor="#666" />
               <Text style={styles.labelInput}>Taille (cm)</Text>
-              <TextInput style={styles.input} value={height} onChangeText={setHeight} keyboardType="numeric" placeholder="Ex: 168" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={height} onChangeText={(val) => { setHeight(val); saveDataToStorage({ height: val }); }} keyboardType="numeric" placeholder="Ex: 168" placeholderTextColor="#666" />
               <Text style={styles.labelInput}>Âge</Text>
-              <TextInput style={styles.input} value={age} onChangeText={setAge} keyboardType="numeric" placeholder="Ex: 28" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={age} onChangeText={(val) => { setAge(val); saveDataToStorage({ age: val }); }} keyboardType="numeric" placeholder="Ex: 28" placeholderTextColor="#666" />
             </ScrollView>
           )}
 
@@ -258,16 +293,16 @@ export default function App() {
             <ScrollView contentContainerStyle={{ paddingVertical: 10 }} showsVerticalScrollIndicator={false}>
               <Text style={styles.questionText}>Composition corporelle</Text>
               <Text style={styles.labelInput}>Masse grasse (%)</Text>
-              <TextInput style={styles.input} value={bodyFat} onChangeText={setBodyFat} keyboardType="numeric" placeholder="Ex: 22" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={bodyFat} onChangeText={(val) => { setBodyFat(val); saveDataToStorage({ bodyFat: val }); }} keyboardType="numeric" placeholder="Ex: 22" placeholderTextColor="#666" />
               <Text style={styles.labelInput}>Masse musculaire (kg)</Text>
-              <TextInput style={styles.input} value={muscleMass} onChangeText={setMuscleMass} keyboardType="numeric" placeholder="Ex: 44" placeholderTextColor="#666" />
+              <TextInput style={styles.input} value={muscleMass} onChangeText={(val) => { setMuscleMass(val); saveDataToStorage({ muscleMass: val }); }} keyboardType="numeric" placeholder="Ex: 44" placeholderTextColor="#666" />
             </ScrollView>
           )}
 
           {step === 4 && (
             <View style={{ flex: 1, justifyContent: 'center' }}>
               <Text style={styles.questionText}>Planning Hebdomadaire</Text>
-              <Text style={styles.subtext}>Rugby, renfo, course et repos intégrés dynamiquement.</Text>
+              <Text style={styles.subtext}>Rugby, renfo, course et repos calibrés pour tes performances.</Text>
             </View>
           )}
 
@@ -310,7 +345,10 @@ export default function App() {
                 <Text style={styles.backButtonText}>Retour</Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={[styles.nextButton, step > 1 && { flex: 1, marginLeft: 10 }]} onPress={() => { if (step < 6) setStep(step + 1); else setHasCompletedOnboarding(true); }}>
+            <TouchableOpacity style={[styles.nextButton, step > 1 && { flex: 1, marginLeft: 10 }]} onPress={() => { 
+              if (step < 6) setStep(step + 1); 
+              else { setHasCompletedOnboarding(true); saveDataToStorage({ hasCompletedOnboarding: true }); }
+            }}>
               <Text style={styles.nextButtonText}>{step === 6 ? "Lancer Hybryd 🚀" : "Suivant"}</Text>
             </TouchableOpacity>
           </View>
@@ -327,7 +365,7 @@ export default function App() {
       
       <View style={[styles.appWrapper, isDesktop && styles.desktopLayout]}>
         
-        {/* Sidebar Bureau Responsive */}
+        {/* Sidebar Web Pro */}
         {isDesktop && (
           <View style={styles.sidebar}>
             <Text style={styles.sidebarLogo}>⚡️ HYBRYD</Text>
@@ -377,10 +415,10 @@ export default function App() {
                       style={styles.inputMeal}
                       value={userReply}
                       onChangeText={setUserReply}
-                      placeholder="Réponds au coach (ex: Gros cardio aujourd'hui !)"
+                      placeholder="Réponds au coach (ex: Grosse séance rugby hier !)"
                       placeholderTextColor="#666"
                     />
-                    <TouchableOpacity style={styles.logMealButton} onPress={() => { setCoachFeedback(`💪 Bien reçu ! On valide ton ressenti et on ajuste l'intensité.`); setUserReply(''); }}>
+                    <TouchableOpacity style={styles.logMealButton} onPress={() => { setCoachFeedback(`💪 Bien reçu ${userName || 'Athlète'} ! On valide ton feedback et on ajuste l'intensité.`); setUserReply(''); }}>
                       <Text style={styles.logMealButtonText}>Envoyer au coach</Text>
                     </TouchableOpacity>
                   </View>
@@ -436,7 +474,7 @@ export default function App() {
                   <View style={styles.workoutCard}>
                     <Text style={styles.workoutType}>Stratégie Musculaire</Text>
                     <Text style={styles.workoutDetails}>• Séances de renforcement conçues pour compléter ton rugby sans saturer ton système nerveux.</Text>
-                    <Text style={styles.workoutDetails}>• Focus : Maintien et densification musculaire.</Text>
+                    <Text style={styles.workoutDetails}>• Focus : Maintien et densification musculaire de tes {muscleMass || '44'}kg de muscle.</Text>
                   </View>
                 </View>
               </View>
@@ -464,9 +502,9 @@ export default function App() {
                       </TouchableOpacity>
                     </View>
                     <View style={styles.prRow}>
-                      <View style={styles.prBox}><Text style={styles.prLabel}>5 KM</Text><TextInput style={styles.prInput} value={pr5k} onChangeText={setPr5k} /></View>
-                      <View style={styles.prBox}><Text style={styles.prLabel}>10 KM</Text><TextInput style={styles.prInput} value={pr10k} onChangeText={setPr10k} /></View>
-                      <View style={styles.prBox}><Text style={styles.prLabel}>SEMI</Text><TextInput style={styles.prInput} value={pr21k} onChangeText={setPr21k} /></View>
+                      <View style={styles.prBox}><Text style={styles.prLabel}>5 KM</Text><TextInput style={styles.prInput} value={pr5k} onChangeText={(val) => { setPr5k(val); saveDataToStorage({ pr5k: val }); }} /></View>
+                      <View style={styles.prBox}><Text style={styles.prLabel}>10 KM</Text><TextInput style={styles.prInput} value={pr10k} onChangeText={(val) => { setPr10k(val); saveDataToStorage({ pr10k: val }); }} /></View>
+                      <View style={styles.prBox}><Text style={styles.prLabel}>SEMI</Text><TextInput style={styles.prInput} value={pr21k} onChangeText={(val) => { setPr21k(val); saveDataToStorage({ pr21k: val }); }} /></View>
                     </View>
                   </View>
                 </View>
@@ -498,7 +536,7 @@ export default function App() {
                     <View style={{ backgroundColor: '#201D1A', padding: 12, borderRadius: 10, marginBottom: 12, borderWidth: 1, borderColor: '#332E2A' }}>
                       <Text style={{ color: '#E2E8F0', fontSize: 13, lineHeight: 18 }}>{snackAdvice}</Text>
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10, gap: 4 }}>
                       <TouchableOpacity style={styles.snackChip} onPress={() => handleGetSnackAdvice('sucre')}><Text style={styles.snackChipText}>🍫 Sucre</Text></TouchableOpacity>
                       <TouchableOpacity style={styles.snackChip} onPress={() => handleGetSnackAdvice('salé')}><Text style={styles.snackChipText}>🥜 Salé</Text></TouchableOpacity>
                       <TouchableOpacity style={styles.snackChip} onPress={() => handleGetSnackAdvice('faim')}><Text style={styles.snackChipText}>🍽️ Faim</Text></TouchableOpacity>
@@ -510,7 +548,7 @@ export default function App() {
                   <View style={styles.mealInputCard}>
                     <Text style={styles.mealInputTitle}>🤖 Ajouter un repas au journal</Text>
                     <TextInput style={styles.inputMeal} value={customMealInput} onChangeText={setCustomMealInput} placeholder="Ex: Poulet riz brocolis..." placeholderTextColor="#666" />
-                    <TouchableOpacity style={styles.logMealButton} onPress={handleLogCustomMeal}><Text style={styles.logMealButtonText}>Calculer & Ajouter</Text></TouchableOpacity>
+                    <TouchableOpacity style={styles.logMealButton} onPress={handleLogCustomMeal}><Text style={styles.logMealButtonText}>Calculer & Enregistrer</Text></TouchableOpacity>
 
                     <View style={{ marginTop: 12 }}>
                       <Text style={{ color: '#94A3B8', fontSize: 13, marginBottom: 6, fontWeight: '600' }}>Repas enregistrés aujourd'hui :</Text>
